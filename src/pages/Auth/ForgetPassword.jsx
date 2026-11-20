@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { LoadingSpinner } from "../../components/common/LoadingSkeleton";
@@ -632,9 +633,8 @@ export default function ForgetPassword() {
 
             {/* Back to Login Link */}
             <div className="flex justify-center">
-              <a
-                href="/"
-                onClick={(e) => e.preventDefault()}
+              <Link
+                to="/"
                 className="inline-flex items-center gap-2 text-[#00bfa5] hover:text-[#009e88] font-semibold text-[15px] transition-colors group"
               >
                 <svg
@@ -650,7 +650,7 @@ export default function ForgetPassword() {
                   <polyline points="12 19 5 12 12 5" />
                 </svg>
                 <span>Back to Login</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

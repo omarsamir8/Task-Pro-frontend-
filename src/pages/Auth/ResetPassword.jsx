@@ -1,13 +1,14 @@
 import { useState } from "react";
 import api from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinner } from "../../components/common/LoadingSkeleton";
 import {
   notifyError,
   notifySuccess,
 } from "../../components/common/notifications";
 export default function ResetPassword() {
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -36,6 +37,7 @@ export default function ResetPassword() {
         text: message,
       });
       notifySuccess(message);
+      navigate("/", { replace: true });
     } catch (error) {
       const message =
         error.response?.data?.message || "Failed to reset password.";
@@ -796,9 +798,8 @@ export default function ResetPassword() {
 
             {/* Back to Login Link */}
             <div className="flex justify-center">
-              <a
-                href="/"
-                onClick={(e) => e.preventDefault()}
+              <Link
+                to="/"
                 className="inline-flex items-center gap-2 text-[#00bfa5] hover:text-[#009e88] font-semibold text-[15px] transition-colors group"
               >
                 <svg
@@ -814,7 +815,7 @@ export default function ResetPassword() {
                   <polyline points="12 19 5 12 12 5" />
                 </svg>
                 <span>Back to Login</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
