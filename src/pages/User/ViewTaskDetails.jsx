@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -55,6 +55,7 @@ export default function ViewTaskDetails() {
     error: "",
   });
   const [savingItem, setSavingItem] = useState(null);
+  const pendingScrollPosition = useRef(null);
   const loading = taskState.id !== id || taskState.loading;
   const task = taskState.id === id ? taskState.task : null;
   const error = taskState.id === id ? taskState.error : "";
@@ -94,28 +95,60 @@ export default function ViewTaskDetails() {
     [task?.progress, checklist.length, completedCount],
   );
 
-  const toggleChecklistItem = async (index) => {
-    if (!task || savingItem !== null) return;
-    const scrollPosition = window.scrollY;
-    const restoreScrollPosition = () => {
-      window.requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollPosition, behavior: "auto" });
-        window.requestAnimationFrame(() => {
-          window.scrollTo({ top: scrollPosition, behavior: "auto" });
-        });
+  useLayoutEffect(() => {
+    if (pendingScrollPosition.current === null) return;
+
+    const scrollPosition = pendingScrollPosition.current;
+    const restoreScroll = () => {
+      window.scrollTo({ top: scrollPosition, behavior: "auto" });
+      document.documentElement.scrollTop = scrollPosition;
+      document.body.scrollTop = scrollPosition;
+
+      document.querySelectorAll("main").forEach((main) => {
+        main.scrollTop = scrollPosition;
       });
     };
+
+    restoreScroll();
+    window.requestAnimationFrame(restoreScroll);
+  }, [taskState.task, savingItem]);
+
+  const toggleChecklistItem = async (index) => {
+    if (!task || savingItem !== null) return;
+    pendingScrollPosition.current =
+      window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+    const previousTask = task;
     setTaskState((current) => ({ ...current, error: "" }));
     setSavingItem(index);
     const todoChecklist = checklist.map((item, itemIndex) =>
       itemIndex === index ? { ...item, completed: !item.completed } : item,
     );
+    const completedCount = todoChecklist.filter((item) => item.completed).length;
+    const nextProgress = todoChecklist.length
+      ? Math.round((completedCount / todoChecklist.length) * 100)
+      : 0;
+    const nextStatus =
+      nextProgress === 100
+        ? "Completed"
+        : nextProgress > 0
+          ? "In Progress"
+          : "Pending";
+
+    setTaskState((current) => ({
+      ...current,
+      task: {
+        ...current.task,
+        todoChecklist,
+        progress: nextProgress,
+        status: nextStatus,
+      },
+    }));
+
     try {
       const { data } = await api.put(API_PATHS.TASKS.CHECKLIST(id), {
         todoChecklist,
       });
       setTaskState((current) => ({ ...current, task: data.task }));
-      restoreScrollPosition();
       notifySuccess("Checklist progress saved.");
     } catch (requestError) {
       const message =
@@ -123,12 +156,13 @@ export default function ViewTaskDetails() {
         "Unable to update this checklist item. Please try again.";
       setTaskState((current) => ({
         ...current,
+        task: previousTask,
         error: message,
       }));
-      restoreScrollPosition();
       notifyError(message);
     } finally {
       setSavingItem(null);
+      pendingScrollPosition.current = null;
     }
   };
 
@@ -176,7 +210,7 @@ export default function ViewTaskDetails() {
   }
 
   return (
-    <section className="mx-auto w-full min-w-0 pb-0">
+    <section className="mx-auto w-full min-w-0 pb-0" style={{ overflowAnchor: "none" }}>
       <Link
         to={backPath}
         className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-teal-700"
@@ -184,7 +218,10 @@ export default function ViewTaskDetails() {
         <ArrowLeft className="h-4 w-4" /> Back to {backLabel}
       </Link>
 
-      <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+      <article
+        className="min-w-0 rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
+        style={{ overflowAnchor: "none" }}
+      >
         <header className="border-b border-slate-100 bg-gradient-to-br from-teal-50/80 via-white to-white p-3 sm:p-4">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-start gap-4">
@@ -335,11 +372,6 @@ export default function ViewTaskDetails() {
                       >
                         {item.text}
                       </span>
-                      {savingItem === index && (
-                        <span className="text-xs font-medium text-teal-700">
-                          Saving...
-                        </span>
-                      )}
                     </label>
                   );
                 })}
