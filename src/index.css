@@ -10,12 +10,17 @@
 @layer base {
   html {
     font-family: var(--font-display);
+    min-height: 100%;
   }
   body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     background-color: #fcfbfc;
+    min-height: 100vh;
     overflow-x: hidden;
+  }
+  #root {
+    min-height: 100vh;
   }
 }

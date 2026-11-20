@@ -69,7 +69,7 @@ export default function UserLayout() {
   };
 
   return (
-    <div className="fixed inset-0 flex min-h-0 overflow-hidden bg-[#F8FAFC] font-sans text-slate-800">
+    <div className="flex min-h-screen overflow-x-hidden bg-[#F8FAFC] font-sans text-slate-800">
       {isSidebarOpen && (
         <button
           type="button"
@@ -81,7 +81,7 @@ export default function UserLayout() {
 
       <aside
         id="member-sidebar"
-        className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 select-none flex-col justify-between overflow-hidden bg-[#0B192C] text-slate-300 shadow-2xl transition-transform duration-300 ease-out sm:w-80 lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 select-none flex-col justify-between overflow-hidden bg-[#0B192C] text-slate-300 shadow-2xl transition-transform duration-300 ease-out sm:w-80 lg:sticky lg:top-0 lg:h-screen lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -179,8 +179,8 @@ export default function UserLayout() {
         </div>
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-3 sm:h-20 sm:px-6 lg:px-8">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-3 sm:h-20 sm:px-6 lg:px-8">
           <button
             type="button"
             onClick={() => setIsSidebarOpen(true)}
@@ -203,7 +203,7 @@ export default function UserLayout() {
           </span>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 pb-0 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
+        <main className="min-w-0 flex-1 px-4 pt-4 pb-0 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
           <Outlet />
         </main>
       </div>

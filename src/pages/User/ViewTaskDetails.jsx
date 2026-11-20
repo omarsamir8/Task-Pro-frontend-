@@ -96,6 +96,15 @@ export default function ViewTaskDetails() {
 
   const toggleChecklistItem = async (index) => {
     if (!task || savingItem !== null) return;
+    const scrollPosition = window.scrollY;
+    const restoreScrollPosition = () => {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollPosition, behavior: "auto" });
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollPosition, behavior: "auto" });
+        });
+      });
+    };
     setTaskState((current) => ({ ...current, error: "" }));
     setSavingItem(index);
     const todoChecklist = checklist.map((item, itemIndex) =>
@@ -106,6 +115,7 @@ export default function ViewTaskDetails() {
         todoChecklist,
       });
       setTaskState((current) => ({ ...current, task: data.task }));
+      restoreScrollPosition();
       notifySuccess("Checklist progress saved.");
     } catch (requestError) {
       const message =
@@ -115,6 +125,7 @@ export default function ViewTaskDetails() {
         ...current,
         error: message,
       }));
+      restoreScrollPosition();
       notifyError(message);
     } finally {
       setSavingItem(null);
