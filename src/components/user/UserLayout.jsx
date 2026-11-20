@@ -203,7 +203,7 @@ export default function UserLayout() {
           </span>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 pb-0 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
           <Outlet />
         </main>
       </div>

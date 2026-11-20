@@ -165,7 +165,7 @@ export default function ViewTaskDetails() {
   }
 
   return (
-    <section className="mx-auto w-full">
+    <section className="mx-auto w-full min-w-0 pb-0">
       <Link
         to={backPath}
         className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-teal-700"
@@ -173,7 +173,7 @@ export default function ViewTaskDetails() {
         <ArrowLeft className="h-4 w-4" /> Back to {backLabel}
       </Link>
 
-      <article className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+      <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
         <header className="border-b border-slate-100 bg-gradient-to-br from-teal-50/80 via-white to-white p-3 sm:p-4">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-start gap-4">
