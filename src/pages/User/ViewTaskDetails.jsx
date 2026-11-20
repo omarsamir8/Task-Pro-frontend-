@@ -98,31 +98,12 @@ export default function ViewTaskDetails() {
     if (!task || savingItem !== null) return;
     setTaskState((current) => ({ ...current, error: "" }));
     setSavingItem(index);
-    const previousTask = task;
-    const todoChecklist = checklist.map((item, itemIndex) => ({
-      ...item,
-      completed:
-        itemIndex === index ? !Boolean(item.completed) : Boolean(item.completed),
-    }));
-    const completedCount = todoChecklist.filter((item) => item.completed).length;
-    const progress = todoChecklist.length
-      ? Math.round((completedCount / todoChecklist.length) * 100)
-      : 0;
-    const status =
-      progress === 100
-        ? "Completed"
-        : progress > 0
-          ? "In Progress"
-          : "Pending";
-
-    setTaskState((current) => ({
-      ...current,
-      task: { ...current.task, todoChecklist, progress, status },
-    }));
-
+    const todoChecklist = checklist.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, completed: !item.completed } : item,
+    );
     try {
       const { data } = await api.put(API_PATHS.TASKS.CHECKLIST(id), {
-        index,
+        todoChecklist,
       });
       setTaskState((current) => ({ ...current, task: data.task }));
       notifySuccess("Checklist progress saved.");
@@ -132,7 +113,6 @@ export default function ViewTaskDetails() {
         "Unable to update this checklist item. Please try again.";
       setTaskState((current) => ({
         ...current,
-        task: previousTask,
         error: message,
       }));
       notifyError(message);
@@ -185,7 +165,7 @@ export default function ViewTaskDetails() {
   }
 
   return (
-    <section className="mx-auto w-full pb-0">
+    <section className="mx-auto w-full">
       <Link
         to={backPath}
         className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-teal-700"

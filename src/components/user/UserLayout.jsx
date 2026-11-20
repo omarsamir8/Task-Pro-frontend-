@@ -1,7 +1,20 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { CheckSquare2, LogOut, Menu, ShieldCheck, X } from "lucide-react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  CheckSquare2,
+  ListTodo,
+  LogOut,
+  Menu,
+  ShieldCheck,
+  X,
+} from "lucide-react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import api from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { notifyError, notifySuccess } from "../common/notifications";
@@ -12,6 +25,7 @@ export default function UserLayout() {
   const user = JSON.parse(Cookies.get("user") || "{}");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -24,11 +38,18 @@ export default function UserLayout() {
         if (active) {
           notifyError(error.response?.data?.message || "Unable to load your profile.");
         }
+      })
+      .finally(() => {
+        if (active) setProfileLoading(false);
       });
     return () => {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!isSidebarOpen) return undefined;
@@ -39,10 +60,6 @@ export default function UserLayout() {
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [isSidebarOpen]);
 
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
-
   const handleLogout = () => {
     Cookies.remove("token");
     Cookies.remove("refreshToken");
@@ -52,7 +69,7 @@ export default function UserLayout() {
   };
 
   return (
-    <div className="fixed inset-0 flex min-h-0 overflow-hidden bg-[#F6F9FC] font-sans text-slate-800">
+    <div className="fixed inset-0 flex min-h-0 overflow-hidden bg-[#F8FAFC] font-sans text-slate-800">
       {isSidebarOpen && (
         <button
           type="button"
@@ -72,19 +89,17 @@ export default function UserLayout() {
           <div className="flex items-center space-x-3 p-5 sm:p-6">
             <Link
               to="/user/tasks"
-              className="flex min-w-0 flex-1 items-center gap-3"
               onClick={() => setIsSidebarOpen(false)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-400 text-slate-900 shadow-lg shadow-teal-500/30"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-400 text-slate-900 shadow-lg shadow-teal-500/30">
-                <CheckSquare2 className="h-6 w-6" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-xl font-bold tracking-wide text-white">TaskPro</span>
-                <span className="block text-[10px] font-medium uppercase tracking-wider text-teal-400">
-                  Manage · Track · Achieve
-                </span>
-              </span>
+              <CheckSquare2 className="h-6 w-6" />
             </Link>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl font-bold tracking-wide text-white">TaskPro</h1>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-teal-400">
+                Manage · Track · Achieve
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setIsSidebarOpen(false)}
@@ -108,7 +123,7 @@ export default function UserLayout() {
               onClick={() => setIsSidebarOpen(false)}
             >
               <span className="flex items-center gap-3">
-                <CheckSquare2 className="h-5 w-5" />
+                <ListTodo className="h-5 w-5" />
                 <span>My Tasks</span>
               </span>
             </NavLink>
@@ -117,7 +132,9 @@ export default function UserLayout() {
 
         <div className="relative z-10 m-3 rounded-2xl border border-slate-800/80 bg-[#0A1424] p-4">
           <div className="mb-3 flex items-center gap-3">
-            {profile?.profileImageUrl ? (
+            {profileLoading ? (
+              <div className="h-10 w-10 animate-pulse rounded-full bg-slate-700" />
+            ) : profile?.profileImageUrl ? (
               <img
                 src={profile.profileImageUrl}
                 alt={profile.name || "Member profile"}
@@ -129,10 +146,14 @@ export default function UserLayout() {
               </div>
             )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">
-                {profile?.name || user.name || "Member"}
-              </p>
-              <p className="flex items-center gap-1 truncate text-xs text-teal-400">
+              {profileLoading ? (
+                <div className="h-4 w-24 animate-pulse rounded bg-slate-700" />
+              ) : (
+                <p className="truncate text-sm font-semibold text-white">
+                  {profile?.name || user.name || "Member"}
+                </p>
+              )}
+              <p className="flex items-center gap-1 text-xs text-teal-400">
                 <ShieldCheck className="h-3 w-3" />
                 {profile?.role || user.role || "member"}
               </p>
@@ -150,7 +171,10 @@ export default function UserLayout() {
 
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 opacity-20">
           <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="h-24 w-full">
-            <path d="M0.00,49.98 C149.99,150.00 349.20,-49.98 500.00,49.98 L500.00,150.00 L0.00,150.00 Z" className="fill-teal-500" />
+            <path
+              d="M0.00,49.98 C149.99,150.00 349.20,-49.98 500.00,49.98 L500.00,150.00 L0.00,150.00 Z"
+              className="fill-teal-500"
+            />
           </svg>
         </div>
       </aside>
@@ -179,7 +203,7 @@ export default function UserLayout() {
           </span>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>
