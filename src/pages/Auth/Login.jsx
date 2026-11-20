@@ -454,7 +454,9 @@ export default function Login() {
             {/* Google */}
             <button
               type="button"
-              className="flex-1 max-w-[100px] h-12 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 shadow-sm"
+              disabled
+              title="Disallowed until Google sign-in is configured"
+              className="relative flex-1 max-w-[100px] h-12 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center opacity-50 cursor-not-allowed shadow-sm"
               aria-label="Sign in with Google"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -480,7 +482,9 @@ export default function Login() {
             {/* GitHub */}
             <button
               type="button"
-              className="flex-1 max-w-[100px] h-12 rounded-xl bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 shadow-sm"
+              disabled
+              title="Disallowed until GitHub sign-in is configured"
+              className="flex-1 max-w-[100px] h-12 rounded-xl bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 flex items-center justify-center opacity-50 cursor-not-allowed shadow-sm"
               aria-label="Sign in with GitHub"
             >
               <svg
@@ -495,19 +499,6 @@ export default function Login() {
               </svg>
             </button>
 
-            {/* Microsoft */}
-            <button
-              type="button"
-              className="flex-1 max-w-[100px] h-12 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 shadow-sm"
-              aria-label="Sign in with Microsoft"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 23 23">
-                <path fill="#f35325" d="M1 1h10v10H1z" />
-                <path fill="#81bc06" d="M12 1h10v10H12z" />
-                <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                <path fill="#ffba08" d="M12 12h10v10H12z" />
-              </svg>
-            </button>
           </div>
           {/* Divider */}
 

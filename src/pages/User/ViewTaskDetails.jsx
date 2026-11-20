@@ -1,12 +1,10 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   CalendarDays,
-  Check,
   CheckCircle2,
   CheckSquare2,
-  Circle,
   Clock3,
   FileText,
   Paperclip,
@@ -55,7 +53,6 @@ export default function ViewTaskDetails() {
     error: "",
   });
   const [savingItem, setSavingItem] = useState(null);
-  const pendingScrollPosition = useRef(null);
   const loading = taskState.id !== id || taskState.loading;
   const task = taskState.id === id ? taskState.task : null;
   const error = taskState.id === id ? taskState.error : "";
@@ -95,55 +92,13 @@ export default function ViewTaskDetails() {
     [task?.progress, checklist.length, completedCount],
   );
 
-  useLayoutEffect(() => {
-    if (pendingScrollPosition.current === null) return;
-
-    const scrollPosition = pendingScrollPosition.current;
-    const restoreScroll = () => {
-      window.scrollTo({ top: scrollPosition, behavior: "auto" });
-      document.documentElement.scrollTop = scrollPosition;
-      document.body.scrollTop = scrollPosition;
-
-      document.querySelectorAll("main").forEach((main) => {
-        main.scrollTop = scrollPosition;
-      });
-    };
-
-    restoreScroll();
-    window.requestAnimationFrame(restoreScroll);
-  }, [taskState.task, savingItem]);
-
   const toggleChecklistItem = async (index) => {
     if (!task || savingItem !== null) return;
-    pendingScrollPosition.current =
-      window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
-    const previousTask = task;
     setTaskState((current) => ({ ...current, error: "" }));
     setSavingItem(index);
     const todoChecklist = checklist.map((item, itemIndex) =>
       itemIndex === index ? { ...item, completed: !item.completed } : item,
     );
-    const completedCount = todoChecklist.filter((item) => item.completed).length;
-    const nextProgress = todoChecklist.length
-      ? Math.round((completedCount / todoChecklist.length) * 100)
-      : 0;
-    const nextStatus =
-      nextProgress === 100
-        ? "Completed"
-        : nextProgress > 0
-          ? "In Progress"
-          : "Pending";
-
-    setTaskState((current) => ({
-      ...current,
-      task: {
-        ...current.task,
-        todoChecklist,
-        progress: nextProgress,
-        status: nextStatus,
-      },
-    }));
-
     try {
       const { data } = await api.put(API_PATHS.TASKS.CHECKLIST(id), {
         todoChecklist,
@@ -156,13 +111,11 @@ export default function ViewTaskDetails() {
         "Unable to update this checklist item. Please try again.";
       setTaskState((current) => ({
         ...current,
-        task: previousTask,
         error: message,
       }));
       notifyError(message);
     } finally {
       setSavingItem(null);
-      pendingScrollPosition.current = null;
     }
   };
 
@@ -210,7 +163,7 @@ export default function ViewTaskDetails() {
   }
 
   return (
-    <section className="mx-auto w-full min-w-0 pb-0" style={{ overflowAnchor: "none" }}>
+    <section className="mx-auto w-full min-w-0 pb-0 [overflow-anchor:none]">
       <Link
         to={backPath}
         className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-teal-700"
@@ -218,10 +171,7 @@ export default function ViewTaskDetails() {
         <ArrowLeft className="h-4 w-4" /> Back to {backLabel}
       </Link>
 
-      <article
-        className="min-w-0 rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
-        style={{ overflowAnchor: "none" }}
-      >
+      <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
         <header className="border-b border-slate-100 bg-gradient-to-br from-teal-50/80 via-white to-white p-3 sm:p-4">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-start gap-4">
@@ -334,9 +284,9 @@ export default function ViewTaskDetails() {
                 {checklist.map((item, index) => {
                   const checked = Boolean(item.completed);
                   return (
-                    <label
+                    <div
                       key={item._id || `${item.text}-${index}`}
-                      className={`group flex cursor-pointer items-center gap-3 rounded-xl border p-2.5 transition ${
+                      className={`group flex items-center gap-3 rounded-xl border p-2.5 transition ${
                         checked
                           ? "border-teal-100 bg-teal-50/60"
                           : "border-slate-200 bg-white hover:border-teal-200 hover:bg-slate-50/70"
@@ -347,22 +297,9 @@ export default function ViewTaskDetails() {
                         checked={checked}
                         disabled={savingItem !== null}
                         onChange={() => toggleChecklistItem(index)}
-                        className="peer sr-only"
+                        className="peer h-5 w-5 shrink-0 cursor-pointer accent-teal-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal-500/20 disabled:cursor-wait"
                         aria-label={`Mark ${item.text} ${checked ? "incomplete" : "complete"}`}
                       />
-                      <span
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border transition ${
-                          checked
-                            ? "border-teal-500 bg-teal-500 text-white"
-                            : "border-slate-300 bg-white text-transparent group-hover:border-teal-400"
-                        } peer-focus-visible:ring-4 peer-focus-visible:ring-teal-500/20`}
-                      >
-                        {checked ? (
-                          <Check className="h-4 w-4 stroke-[3]" />
-                        ) : (
-                          <Circle className="h-3 w-3" />
-                        )}
-                      </span>
                       <span
                         className={`min-w-0 flex-1 text-sm font-medium ${
                           checked
@@ -372,7 +309,12 @@ export default function ViewTaskDetails() {
                       >
                         {item.text}
                       </span>
-                    </label>
+                      {savingItem === index && (
+                        <span className="text-xs font-medium text-teal-700">
+                          Saving...
+                        </span>
+                      )}
+                    </div>
                   );
                 })}
               </div>

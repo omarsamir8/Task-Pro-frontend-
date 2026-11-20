@@ -3,10 +3,7 @@ import Cookies from "js-cookie";
 import api from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { FormSkeleton, LoadingSpinner } from "../common/LoadingSkeleton";
-import {
-  notifyError,
-  notifySuccess,
-} from "../common/notifications";
+import { notifyError, notifySuccess } from "../common/notifications";
 import {
   User,
   Lock,
@@ -180,9 +177,14 @@ const OmarSamirPortrait = ({ customImageUrl }) => {
 const NAV_TABS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "security", label: "Security", icon: Lock },
-  { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "notifications", label: "Notifications", icon: Bell, disabled: true },
   { id: "integrations", label: "Integrations", icon: Blocks },
-  { id: "preferences", label: "Preferences", icon: Settings },
+  {
+    id: "preferences",
+    label: "IntegrationsPreferences",
+    icon: Settings,
+    disabled: true,
+  },
 ];
 
 export default function Setting() {
@@ -217,7 +219,8 @@ export default function Setting() {
 
   useEffect(() => {
     let active = true;
-    api.get(API_PATHS.AUTH.PROFILE)
+    api
+      .get(API_PATHS.AUTH.PROFILE)
       .then(({ data }) => {
         if (!active) return;
         setFullName(data.name || "");
@@ -269,7 +272,9 @@ export default function Setting() {
     setSavingProfile(true);
     try {
       const { data } = await api.put(API_PATHS.AUTH.PROFILE, {
-        name: fullName.trim(), email, profileImageUrl: avatarUrl,
+        name: fullName.trim(),
+        email,
+        profileImageUrl: avatarUrl,
       });
       setFullName(data.name);
       setDisplayedName(data.name);
@@ -352,7 +357,13 @@ export default function Setting() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative group flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-all cursor-pointer whitespace-nowrap sm:w-full text-left ${
+                  disabled={tab.disabled}
+                  title={
+                    tab.disabled
+                      ? "Disallowed until this feature is ready"
+                      : undefined
+                  }
+                  className={`relative group flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-all whitespace-nowrap sm:w-full text-left ${tab.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${
                     isActive
                       ? "bg-[#E6F8F6] text-[#0D9488] font-semibold shadow-[0_1px_2px_rgba(13,148,136,0.06)]"
                       : "bg-white/65 hover:bg-white text-[#475569] hover:text-[#0F172A] font-medium"
@@ -500,7 +511,10 @@ export default function Setting() {
                   </div>
                 </div>
 
-                <form onSubmit={handleChangePassword} className="mt-5 space-y-4">
+                <form
+                  onSubmit={handleChangePassword}
+                  className="mt-5 space-y-4"
+                >
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                       Current Password
@@ -580,7 +594,9 @@ export default function Setting() {
                     disabled={savingPassword}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-[#00B4A6] to-[#00A396] hover:from-[#009E91] hover:to-[#008F83] text-white font-semibold text-sm shadow-md shadow-teal-500/20 transition-all cursor-pointer disabled:cursor-wait disabled:opacity-70"
                   >
-                    {savingPassword ? "Changing Password..." : "Change Password"}
+                    {savingPassword
+                      ? "Changing Password..."
+                      : "Change Password"}
                   </button>
                 </form>
               </div>
@@ -705,8 +721,13 @@ export default function Setting() {
                     },
                     {
                       name: "GitHub Issues",
-                      status: "Available",
-                      badgeStyle: "bg-slate-100 text-slate-600",
+                      status: "Disallowed",
+                      badgeStyle: "bg-rose-50 text-rose-700",
+                    },
+                    {
+                      name: "Microsoft",
+                      status: "Disallowed",
+                      badgeStyle: "bg-rose-50 text-rose-700",
                     },
                   ].map((app) => (
                     <div
@@ -813,7 +834,6 @@ export default function Setting() {
           </main>
         </div>
       </div>
-
     </div>
   );
 }
