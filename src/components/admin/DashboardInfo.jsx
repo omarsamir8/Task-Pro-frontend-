@@ -102,7 +102,7 @@ function DashboardInfo() {
       </div>
     );
   }
-  const recentTasks = dashboard?.recentTasks?.map((task) => ({
+  const recentTasks = dashboard?.recentTasks?.slice(0, 5).map((task) => ({
     id: task._id,
     title: task.title,
     priority: task.priority?.[0]?.toUpperCase() + task.priority?.slice(1),
